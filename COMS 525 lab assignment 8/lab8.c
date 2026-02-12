@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <math.h>
 
-/* recursive factorial: returns double (cleaner for Taylor series) */
 double factorial(int n)
 {
     if (n <= 1) {
@@ -10,10 +9,7 @@ double factorial(int n)
     return n * factorial(n - 1);
 }
 
-/* exp(x) by Taylor expansion around x0 = round(x)
-   exp(x) = e^(x0) * exp(r),  r = x - x0
-   exp(r) ~= sum_{k=0}^N r^k / k!
-*/
+
 double myexp(double x)
 {
     const double e = 2.718281828459;
