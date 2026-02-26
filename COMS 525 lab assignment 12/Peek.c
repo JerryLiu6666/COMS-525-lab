@@ -3,4 +3,3 @@
 double PeekLeft(node* top){
     return top->a;
 }
-
