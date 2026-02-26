@@ -1,6 +1,9 @@
 #ifndef __NODE_H__
 #define __NODE_H__
 
+#include <stddef.h>
+
+
 typedef struct node node;
 struct node{
     double a, b;       

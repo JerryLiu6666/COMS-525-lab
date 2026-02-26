@@ -1,5 +1,6 @@
 #include <math.h>
 #include "node.h"
+#include <stddef.h>
 
 //example
 double f(int func_id, double x){
