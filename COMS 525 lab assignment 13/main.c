@@ -4,6 +4,10 @@
 #include <time.h>
 #include "matrix.h"
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 static double urand01(void){
     return (rand() + 1.0) / (RAND_MAX + 2.0);
 }
