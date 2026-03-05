@@ -219,3 +219,126 @@ vector solve(matrix* A, vector* b){
 
     return x;
 }
+
+//Lecture 14: Eigenvalue Iterations
+static void vector_scale_inplace(vector* x, const double a){
+    for (int i = 1; i <= x->size; i++) vgetp(x, i) *= a;
+}
+
+static double rayleigh_quotient_local(const matrix* A, const vector* x){
+    vector Ax = matrix_vector_mult(A, x);
+    double num = vector_dot_mult(x, &Ax);
+    double den = vector_dot_mult(x, x);
+    free_vector(&Ax);
+    return num / den;
+}
+
+static matrix shifted_matrix_local(const matrix* A, const double mu){
+    assert(A->rows == A->cols);
+    matrix S = matrix_copy(A);
+    for (int i = 1; i <= S.rows; i++) mget(S, i, i) -= mu;   // S = A - mu I
+    return S;
+}
+
+// 1) Power Iteration
+double PowerIteration(const matrix* A, vector* v, const double TOL, const int MaxIters){
+    assert(A->rows == A->cols);
+    assert(v->size == A->rows);
+
+    double nv = vector_norm2(v);
+    if (nv <= 0.0) nv = 1.0;
+    vector_scale_inplace(v, 1.0 / nv);
+
+    double lambda_old = rayleigh_quotient_local(A, v);
+    double lambda_new = lambda_old;
+
+    for (int k = 1; k <= MaxIters; k++) {
+        vector w = matrix_vector_mult(A, v);
+
+        double nw = vector_norm2(&w);
+        if (nw <= 0.0) nw = 1.0;
+        for (int i = 1; i <= v->size; i++) vgetp(v, i) = vgetp(&w, i) / nw;
+
+        free_vector(&w);
+
+        lambda_new = rayleigh_quotient_local(A, v);
+        if (fabs(lambda_new - lambda_old) < TOL) break;
+        lambda_old = lambda_new;
+    }
+
+    return lambda_new;
+}
+
+// 2) Shifted Inverse Iteration
+double ShiftedInverseIteration(const matrix* A, vector* v, const double mu,
+                               const double TOL, const int MaxIters){
+    assert(A->rows == A->cols);
+    assert(v->size == A->rows);
+
+    double nv = vector_norm2(v);
+    if (nv <= 0.0) nv = 1.0;
+    vector_scale_inplace(v, 1.0 / nv);
+
+    double lambda_old = rayleigh_quotient_local(A, v);
+    double lambda_new = lambda_old;
+
+    matrix S0 = shifted_matrix_local(A, mu);
+
+    for (int k = 1; k <= MaxIters; k++) {
+        matrix S = matrix_copy(&S0);
+        vector rhs = vector_copy(v);
+
+        vector w = solve(&S, &rhs);
+
+        free_matrix(&S);
+        free_vector(&rhs);
+
+        double nw = vector_norm2(&w);
+        if (nw <= 0.0) nw = 1.0;
+        for (int i = 1; i <= v->size; i++) vgetp(v, i) = vgetp(&w, i) / nw;
+
+        free_vector(&w);
+
+        lambda_new = rayleigh_quotient_local(A, v);
+        if (fabs(lambda_new - lambda_old) < TOL) break;
+        lambda_old = lambda_new;
+    }
+
+    free_matrix(&S0);
+    return lambda_new;
+}
+
+// 3) Rayleigh Quotient Iteration
+double RayleighQuotientIteration(const matrix* A, vector* v, const double TOL, const int MaxIters){
+    assert(A->rows == A->cols);
+    assert(v->size == A->rows);
+
+    double nv = vector_norm2(v);
+    if (nv <= 0.0) nv = 1.0;
+    vector_scale_inplace(v, 1.0 / nv);
+
+    double lambda_old = rayleigh_quotient_local(A, v);
+    double lambda_new = lambda_old;
+
+    for (int k = 1; k <= MaxIters; k++) {
+        matrix S = shifted_matrix_local(A, lambda_old);
+        vector rhs = vector_copy(v);
+
+        vector w = solve(&S, &rhs);
+
+        free_matrix(&S);
+        free_vector(&rhs);
+
+        double nw = vector_norm2(&w);
+        if (nw <= 0.0) nw = 1.0;
+        for (int i = 1; i <= v->size; i++) vgetp(v, i) = vgetp(&w, i) / nw;
+
+        free_vector(&w);
+
+        lambda_new = rayleigh_quotient_local(A, v);
+        if (fabs(lambda_new - lambda_old) < TOL) break;
+        lambda_old = lambda_new;
+    }
+
+    return lambda_new;
+}

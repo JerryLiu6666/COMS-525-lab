@@ -43,4 +43,11 @@ double vector_norm2(const vector* x);
 
 vector solve(matrix* A, vector* b);
 
+// Eigenvalue solvers (From Lecture 14)
+double PowerIteration(const matrix* A, vector* v, const double TOL, const int MaxIters);
+double ShiftedInverseIteration(const matrix* A, vector* v, const double mu,
+                               const double TOL, const int MaxIters);
+double RayleighQuotientIteration(const matrix* A, vector* v, const double TOL, const int MaxIters);
+
+
 #endif
