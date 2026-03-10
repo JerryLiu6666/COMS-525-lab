@@ -28,7 +28,7 @@ int main(void){
     const double TOL = 1e-12;
     const int MaxIters = 5000;
 
-    int ns[2] = {5, 10};
+    int ns[2] = {6, 12};
 
     for (int t = 0; t < 2; t++) {
         int n = ns[t];
